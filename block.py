@@ -12,6 +12,8 @@ class Block(Entity):
 		self.block = block
 		self.image, _ = self.load.image("%s.png" % block, 0)
 		self.rect = pygame.Rect(x, y, 64, 64)
+		self.type = "block"
+		self.player = False
 
 	def update(self):
 		pass

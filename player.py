@@ -3,15 +3,17 @@
 import pygame
 from pygame.locals import *
 from entity import *
+from bullet import *
 from load import *
 
 class Player(Entity):
-	def __init__(self, sprite_name, world, mapx, mapy, x, y):
+	def __init__(self, sprite_name, world, entities, mapx, mapy, x, y):
 		Entity.__init__(self)
 		self.load = Load()
 		self.mapx = mapx
 		self.mapy = mapy
 		self.world = world
+		self.entities = entities
 		self.xvel = 0
 		self.yvel = 0
 		self.onGround = False
@@ -25,7 +27,17 @@ class Player(Entity):
 		self.oil_amount = 100
 		self.pistol_bullets = 200
 		self.assault_rifle_bullets = 100
-
+		self.type = "alive"
+		self.player = True
+		self.game_complete = False
+		self.jump_sound = self.load.sound("jump.wav")
+		self.assault_rifle_sound = self.load.sound("assault-rifle.wav")
+		self.collision_sound = self.load.sound("collision.wav")
+		self.jump_sound = self.load.sound("jump.wav")
+		self.melt_sound = self.load.sound("melt.wav")
+		self.pistol_sound = self.load.sound("pistol.wav")
+		self.radio_sound = self.load.sound("radio.wav")
+		self.facing = None
 	def load_image(self, name):
 		self.image, _ = self.load.image(name, -1)
 
@@ -34,7 +46,9 @@ class Player(Entity):
 		run = 0
 		if up == True:
 			self.facing = "up"
-			if self.onGround: self.yvel -= 10 
+			if self.onGround: 
+				self.yvel -= 10	
+				self.jump_sound.play()
 		if running == True:
 			run = 5
 		if down == True: 
@@ -57,6 +71,7 @@ class Player(Entity):
 								if block.block == "oil-pocket-block":	
 									self.oil_amount += 10
 								if self.oil_amount >= 5:
+									self.melt_sound.play()
 									self.oil_amount -= 5;
 									block.kill()
 						elif self.facing == "down":
@@ -65,6 +80,7 @@ class Player(Entity):
 								if block.block == "oil-pocket-block":
 									self.oil_amount += 10
 								if self.oil_amount >= 5:
+									self.melt_sound.play()
 									self.oil_amount -= 5;
 									block.kill()
 						elif self.facing == "left":
@@ -73,6 +89,7 @@ class Player(Entity):
 								if block.block == "oil-pocket-block":
 									self.oil_amount += 10
 								if self.oil_amount >= 5:
+									self.melt_sound.play()
 									self.oil_amount -= 5;
 									block.kill()
 						elif self.facing == "right":
@@ -81,6 +98,7 @@ class Player(Entity):
 								if block.block == "oil-pocket-block":
 									self.oil_amount += 10
 								if self.oil_amount >= 5:
+									self.melt_sound.play()
 									self.oil_amount -= 5;
 									block.kill()	
 		if not self.onGround:
@@ -106,14 +124,42 @@ class Player(Entity):
 				self.weapon = "assault-rifle"
 				print "Set weapon assault-rifle"
 			elif self.weapon == "assault-rifle":
+				self.weapon = "radio"
+				print "Set weapon radio"
+			elif self.weapon == "radio":
 				self.weapon = None
 				print "Set weapon none"
 		if shoot == True:
 			if self.weapon != None:
-				if self.weapon == "pistol":
-					self.pistol_bullets -= 1
+				if self.weapon == "radio":
+					radio_usable = True
+					for m in self.world.get_open_maps():
+						for block in m.blocks.sprites():
+							if block.rect.x == self.rect.x:
+								print "block %s,%s blocked radio." % (block.rect.x, block.rect.y)
+								radio_usable = False
+							if block.rect.y == self.rect.y:
+								print "block %s,%s blocked radio." % (block.rect.x, block.rect.y)
+								radio_usable = False
+					if radio_usable == True:
+						if self.onGround:
+							self.radio_sound.play()
+							print "Completed the game."
+							self.game_complete = True
+				elif self.weapon == "pistol":
+					if self.pistol_bullets >= 1:
+						if self.facing == "left" or self.facing == "right":
+							self.pistol_sound.play()
+							direction = self.facing
+							self.pistol_bullets -= 1
+							self.entities.add(Bullet(self.world, self.entities, self.mapx, self.mapy, self.rect.x, self.rect.y, direction))
 				elif self.weapon == "assault-rifle":
-					self.assault_rifle_bullets -= 1
+					if self.assault_rifle_bullets >= 1:
+						if self.facing == "left" or self.facing == "right":
+							self.assault_rifle_sound.play()	
+							direction = self.facing
+							self.assault_rifle_bullets -= 1
+							self.entities.add(Bullet(self.world, self.entities, self.mapx, self.mapy, self.rect.x, self.rect.y, direction))
 		self.rect.left += self.xvel
 		self.collide(self.xvel, 0)
 		self.rect.top += self.yvel
@@ -147,11 +193,17 @@ class Player(Entity):
 			for block in m.blocks.sprites():		
 				if pygame.sprite.collide_rect(self, block):
 					if xvel > 0:
+						self.collision_sound.play()
 						self.rect.right = block.rect.left
 						#print "collide right"
+						self.facing = "right"
+						self.load_image("%s-stand-right.png" % self.sprite_name)
 					if xvel < 0:
+						self.collision_sound.play()
 						self.rect.left = block.rect.right
 						#print "collide left"
+						self.facing = "left"
+						self.load_image("%s-stand-left.png" % self.sprite_name)
 					if yvel > 0:
 						self.rect.bottom = block.rect.top
 						#print "collide bottom"
@@ -159,6 +211,7 @@ class Player(Entity):
 						if block.block == "ice-block" or block.block == "ice-two-block" or block.block == "oil-pocket-block":
 							self.onGround = True
 					if yvel < 0:
+						self.collision_sound.play()
 						#print "collide top"
 						self.rect.top = block.rect.bottom
 						yvel = 0

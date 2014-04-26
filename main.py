@@ -71,19 +71,20 @@ class Engine:
 	def play(self):	
 		world = World(18, 18, 20, 20)
 		world.generate_world(10)
-		self.player = Player("player", world, 9, 16, 10, 10)
-		world.load_maps(9,16)
 		entities = pygame.sprite.Group()
+		self.player = Player("player", world, entities, 9, 16, 10, 10)
+		world.load_maps(9,16)
 		camera = Camera(complex_camera, 18*20*64, 18*20*64)
 		while self.state_running == True:
 			self.timer.tick(60)
 			self.screen.fill((150,255,255))
-			self.check_events()
-			self.player.update()
 			for m in world.get_open_maps():
 				for block in m.blocks:
 					entities.add(block)
 			entities.add(self.player)
+			self.check_events()
+			for e in entities:
+				e.update()	
 			camera.update(self.player, WIDTH, HEIGHT)			
 			for e in entities:
 				self.screen.blit(e.image, camera.apply(e))
@@ -104,8 +105,12 @@ class Engine:
 				text.set_position(50, 122)
 				text.draw(self.screen)
 			pygame.display.flip()
-			
-
+			if self.player.game_complete == True:
+				self.state = "ending"
+				self.state_running == False
+				sys.exit()
+	def ending(self):
+		sys.exit()
 
 if __name__ == "__main__":
 	game = Engine(WIDTH, HEIGHT)
@@ -118,4 +123,7 @@ if __name__ == "__main__":
 		elif game.state == "play":
 			print "Started play"
 			game.play()
+		elif game.state == "ending":
+			print "Started ending"
+			game.ending()
 		game.state_running = True

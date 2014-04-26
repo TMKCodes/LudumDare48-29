@@ -20,10 +20,10 @@ class Map(object):
 		self.blocks.draw(screen)
 
 	def get_width(self):
-		return self.width*64
+		return self.x*self.width*64+self.width*64 
 
 	def get_height(self):
-		return self.height*64
+		return self.y*self.height*64+self.height*64
 
 	def get_block_top(self, x, y):
 		for block in self.blocks.sprites():
