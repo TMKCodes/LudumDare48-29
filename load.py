@@ -8,7 +8,7 @@ class Load:
 	def __init__(self):
 		pass
 	
-	def image(name, colorkey = None):
+	def image(self, name, colorkey = None):
 		fullname = os.path.join('data', name)
 		try:
 			image = pygame.image.load(fullname)
@@ -22,7 +22,7 @@ class Load:
 			image.set_colorkey(colorkey, RLEACCEL)
 		return image, image.get_rect()
 
-	def sound(name):
+	def sound(self, name):
 		class NoneSound:
 			def play(self): pass
 		if not pygame.mixer:

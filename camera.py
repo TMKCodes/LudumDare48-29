@@ -11,8 +11,8 @@ class Camera(object):
 	def apply(self, target):
 		return target.rect.move(self.state.topleft)
 	
-	def update(self, target):
-		self.state = self.camera_func(self.state, target.rect)
+	def update(self, target, height, width):
+		self.state = self.camera_func(self.state, target.rect, height, width)
 
 def simple_camera(camera, target_rect, height, width):
 	l, t, _, _ = target_rect
@@ -25,7 +25,7 @@ def complex_camera(camera, target_rect, height, width):
 	l, t, _, _ = -l+width/2, -t+height/2, w, h
 	l = min(0, l)
 	l = max(-(camera.width-width), l)
-	l = max(-(camrea.height-height), t)
-	l = min(0, t)
+	t = max(-(camera.height-height), t)
+	t = min(0, t)
 	return Rect(l, t, w, h)
 
