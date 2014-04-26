@@ -11,7 +11,6 @@ class Block(Entity):
 		self.load = Load()
 		self.block = block
 		self.image, _ = self.load.image("%s.png" % block, 0)
-		print "Block initiatet at",x, y
 		self.rect = pygame.Rect(x, y, 64, 64)
 
 	def update(self):

@@ -25,6 +25,30 @@ class Map(object):
 	def get_height(self):
 		return self.height*64
 
+	def get_block_top(self, x, y):
+		for block in self.blocks.sprites():
+			if block.rect.x == x and block.rect.y == y-64:
+				return block
+		return False
+
+	def get_block_bottom(self, x, y):
+		for block in self.blocks.sprites():
+			if block.rect.x == x and block.rect.y == y+64:
+				return block
+		return False
+
+	def get_block_left(self, x, y):
+		for block in self.blocks.sprites():
+			if block.rect.x == x-64 and block.rect.y == y:
+				return block
+		return False
+
+	def get_block_right(self, x, y):
+		for block in self.blocks.sprites():
+			if block.rect.x == x+64 and block.rect.y == y:
+				return block;
+		return False
+
 	def get_blocks(self):
 		return self.blocks
 
@@ -45,7 +69,7 @@ class Map(object):
 
 	def generate_block(self, x, y):
 		#print "Generate block", self.x*self.width*64+x*64, self.y*self.height*64+y*64	
-		ice = random.randint(1, 2)
+		ice = random.randint(0, 4)
 		if ice == 1:
 			self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
 		elif ice == 2:

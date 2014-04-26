@@ -15,43 +15,105 @@ class Player(Entity):
 		self.xvel = 0
 		self.yvel = 0
 		self.onGround = False
-		self.rect = pygame.Rect(mapx*self.world.width*64+(x+1)*64, mapy*self.world.height*64+(y+1)*64, 64, 64)
+		self.rect = pygame.Rect(mapx*self.world.mwidth*64+(x*64), mapy*self.world.mheight*64+(y*64), 64, 64)
 		self.lastx = x
 		self.lasty = y
 		self.lastimage = None
 		self.sprite_name = sprite_name
 		self.load_image("%s-front.png" % self.sprite_name)
- 	
+ 		self.weapon = None
+		self.oil_amount = 100
+		self.pistol_bullets = 200
+		self.assault_rifle_bullets = 100
+
 	def load_image(self, name):
 		self.image, _ = self.load.image(name, -1)
 
-	def update(self, event=None):
-		self.xvel = 0
-		self.yvel = 0
+	def update(self, up=False, running=False, down=False, left=False, right=False, melt=False, pause=False, weapon=False, shoot=False):
 		#print "Player pos", self.mapx, self.mapy, self.rect.x, self.rect.y
-		if event == "up":
-			if self.onGround: self.yvel -= 11
-		if event == "running":
-			self.xvel += 12
-		if event == "down": 
+		run = 0
+		if up == True:
+			self.facing = "up"
+			if self.onGround: self.yvel -= 10 
+		if running == True:
+			run = 5
+		if down == True: 
+			self.facing = "down"
 			self.lastimage = "front"
 			self.load_image("%s-front.png" % self.sprite_name)
-		if event == "left":
-			self.xvel += -8
-		if event == "right":
-			self.xvel += 8
+		if left == True:
+			self.facing = "left"
+			self.xvel += -(8 + run)
+		if right == True:
+			self.facing = "right"
+			self.xvel += 8 + run
+		if melt == True:
+			if self.weapon == "torch":
+				for m in self.world.get_open_maps():
+					if m != False:
+						if self.facing == "up":
+							block = m.get_block_top(self.rect.x, self.rect.y)
+							if block != False:
+								if block.block == "oil-pocket-block":	
+									self.oil_amount += 10
+								if self.oil_amount >= 5:
+									self.oil_amount -= 5;
+									block.kill()
+						elif self.facing == "down":
+							block = m.get_block_bottom(self.rect.x, self.rect.y)
+							if block != False:
+								if block.block == "oil-pocket-block":
+									self.oil_amount += 10
+								if self.oil_amount >= 5:
+									self.oil_amount -= 5;
+									block.kill()
+						elif self.facing == "left":
+							block = m.get_block_left(self.rect.x, self.rect.y)
+							if block != False:
+								if block.block == "oil-pocket-block":
+									self.oil_amount += 10
+								if self.oil_amount >= 5:
+									self.oil_amount -= 5;
+									block.kill()
+						elif self.facing == "right":
+							block = m.get_block_right(self.rect.x, self.rect.y)
+							if block != False:
+								if block.block == "oil-pocket-block":
+									self.oil_amount += 10
+								if self.oil_amount >= 5:
+									self.oil_amount -= 5;
+									block.kill()	
 		if not self.onGround:
-			self.yvel += 0.3
+			self.yvel += 0.1
 			if self.yvel > 100: self.yvel == 100
-		if not (event == "left" or event == "right"):
+		if not (left == True or right == True):
 			self.xvel = 0
-		if event == "pause":
+		if pause == True:
 			if self.lastimage == "walk-right-right-leg" or self.lastimage == "walk-right-left-leg":
 				self.lastimage = "stand-right"
 				self.load_image("%s-stand-right.png" % self.sprite_name)
 			elif self.lastimage == "walk-left-left-leg" or self.lastimage == "walk-left-right-leg":
 				self.lastimage = "stand-left"
 				self.load_image("%s-stand-left.png" % self.sprite_name)
+		if weapon == True:
+			if self.weapon == None:
+				self.weapon = "torch"
+				print "Set weapon torch"
+			elif self.weapon == "torch":
+				self.weapon = "pistol"
+				print "Set weapon pistol"
+			elif self.weapon == "pistol":
+				self.weapon = "assault-rifle"
+				print "Set weapon assault-rifle"
+			elif self.weapon == "assault-rifle":
+				self.weapon = None
+				print "Set weapon none"
+		if shoot == True:
+			if self.weapon != None:
+				if self.weapon == "pistol":
+					self.pistol_bullets -= 1
+				elif self.weapon == "assault-rifle":
+					self.assault_rifle_bullets -= 1
 		self.rect.left += self.xvel
 		self.collide(self.xvel, 0)
 		self.rect.top += self.yvel
@@ -79,24 +141,6 @@ class Player(Entity):
 			self.lastimage = self.newimage;
 			img = "%s-%s.png" % (self.sprite_name, self.newimage)
 			self.load_image(img)
-		'''
-		m = self.world.get_current_map(self.mapx, self.mapy) 
-		if m != False:
-			if self.rect.x > m.get_width():
-				self.world.load_maps(self.rect.x, self.rect.y)
-				# self.lastx = 0
-			elif self.rect.x < 0:
-				self.world.load_maps(self.rect.x, self.rect.y)
-				# self.lastx = m.get_width()
-			elif self.rect.y > m.get_height(): 
-				self.world.load_maps(self.rect.x, self.rect.y)
-				# self.lasty = 0
-			elif self.rect.x < 0:
-				self.world.load_maps(self.rect.x, self.rect.y)
-				# self.lasty = m.get_height()
-		else:
-			print "Failed to get current map at", self.mapx, self.mapy
-		'''
 	def collide(self, xvel, yvel):
 		maps = self.world.get_open_maps()
 		for m in maps:	
@@ -104,15 +148,17 @@ class Player(Entity):
 				if pygame.sprite.collide_rect(self, block):
 					if xvel > 0:
 						self.rect.right = block.rect.left
-						print "collide right"
+						#print "collide right"
 					if xvel < 0:
 						self.rect.left = block.rect.right
-						print "collide left"
+						#print "collide left"
 					if yvel > 0:
 						self.rect.bottom = block.rect.top
-						print "collide bottom"
+						#print "collide bottom"
+						#print "block", block.block
 						if block.block == "ice-block" or block.block == "ice-two-block" or block.block == "oil-pocket-block":
 							self.onGround = True
 					if yvel < 0:
-						print "collide top"
+						#print "collide top"
 						self.rect.top = block.rect.bottom
+						yvel = 0

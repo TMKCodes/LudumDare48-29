@@ -7,9 +7,11 @@ from map import *
 from block import *
 
 class World:
-	def __init__(self, width, height):
+	def __init__(self, width, height, mwidth, mheight):
 		self.width = width
 		self.height = height
+		self.mwidth = mwidth
+		self.mheight = mheight
 		self.maps = []
 		self.open_maps = []
 		print "World initialized"
@@ -17,7 +19,7 @@ class World:
 	def load_maps(self, x, y):
 		print "World loading maps"
 		for m in self.maps:
-			if (m.x == x-1 and m.y == y-1) or (m.x == x-1 and m.y == y) or (m.x == x-1 and m.y == y+1) or (m.x == x and m.y == y-1) or (m.x == x and m.y == y) or (m.x == x and m.y == y+1) or (m.x == x+1 and m.y == y-1) or (m.x == x+1 and m.y == y) or (m.x == x+1 and m.y == y+1): 
+			if (m.x == x and m.y == y)  or (m.x == x-1 and m.y == y-1) or (m.x == x-1 and m.y == y) or (m.x == x-1 and m.y == y+1) or (m.x == x and m.y == y-1) or (m.x == x and m.y == y+1) or (m.x == x+1 and m.y == y-1) or (m.x == x+1 and m.y == y) or (m.x == x+1 and m.y == y+1): 
 				print "Map", m.x, m.y," generated is ", m.generated
 				if m.generated == False:
 					if x < self.surface:
@@ -42,7 +44,7 @@ class World:
 		for m in self.open_maps:
 			m.draw(screen)
 
-	def generate_world(self, surfacePercent, width, height):
+	def generate_world(self, surfacePercent):
 		print "World generation started"
 		self.surface = self.width * float(surfacePercent / float(100))
 		print "Surface", self.surface
@@ -51,15 +53,15 @@ class World:
 				print "Generating map for world location", x, ",", y
 				if x < self.surface:
 					print "Generating atmosphere map"
-					new_map = Map("Atmosphere", x, y, width, height)
+					new_map = Map("Atmosphere", x, y, self.mwidth, self.mheight)
 					self.maps.append(new_map)
 				elif x == self.surface:
 					print "Generating surface map"
-					new_map = Map("surface", x, y, width, height)
+					new_map = Map("surface", x, y, self.mwidth, self.mheight)
 					self.maps.append(new_map)
 				elif x > self.surface:
 					print "Generating beneath the surface map"
-					new_map = Map("beneath", x, y, width, height)
+					new_map = Map("beneath", x, y, self.mwidth, self.mheight)
 					self.maps.append(new_map)
 		print "World generation finished"
 					
