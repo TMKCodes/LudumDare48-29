@@ -4,11 +4,11 @@ import os, sys
 import pygame
 from pygame.locals import *
 
-class load:
+class Load:
 	def __init__(self):
 		pass
 	
-	def image(name, colorkey = None)
+	def image(name, colorkey = None):
 		fullname = os.path.join('data', name)
 		try:
 			image = pygame.image.load(fullname)
