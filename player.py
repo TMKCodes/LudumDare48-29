@@ -47,7 +47,7 @@ class Player(Entity):
 		if up == True:
 			self.facing = "up"
 			if self.onGround: 
-				self.yvel -= 10	
+				self.yvel -= 8	
 				self.jump_sound.play()
 		if running == True:
 			run = 5
@@ -187,6 +187,32 @@ class Player(Entity):
 			self.lastimage = self.newimage;
 			img = "%s-%s.png" % (self.sprite_name, self.newimage)
 			self.load_image(img)
+		leftLimit = self.mapx*self.world.mwidth*64
+		upLimit = self.mapy*self.world.mheight*64
+		rightLimit = self.mapx*self.world.mwidth*64+self.world.mwidth*64
+		downLimit = self.mapy*self.world.mheight*64+self.world.mheight*64
+		map_changed = False
+		'''
+		print "X %s > %s rightLimit" % (self.rect.x, rightLimit)
+		print "X %s < %s leftLimit" % (self.rect.x, leftLimit)
+		print "Y %s > %s downLimit" % (self.rect.y, downLimit)
+		print "Y %s < %s upLimit" % (self.rect.y, upLimit)
+		'''
+		if self.rect.x > rightLimit:
+			self.mapx += 1
+			map_changed = True
+		elif self.rect.x < leftLimit:
+			self.mapx -= 1
+			map_changed = True
+		elif self.rect.y > downLimit:
+			self.mapy += 1
+			map_changed = True
+		elif self.rect.y < upLimit:
+			self.mapy -= 1
+			map_changed = True
+		if map_changed == True:	
+			self.world.load_maps(self.mapx, self.mapy)
+		
 	def collide(self, xvel, yvel):
 		maps = self.world.get_open_maps()
 		for m in maps:	

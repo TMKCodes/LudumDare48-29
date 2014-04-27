@@ -22,13 +22,13 @@ class Engine:
 		self.screen_height = height
 		pygame.init()
 		self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-		pygame.display.set_caption("LudumDare 49 compo 29")
+		pygame.display.set_caption("Frozen Solid: Ludum Dare 49 competition 29")
 		self.load = Load()
 		self.state = "main_menu"
 		self.running = True
 		self.state_running = True
 		self.timer = pygame.time.Clock()
-		pygame.key.set_repeat(10,100)
+		pygame.key.set_repeat(100,100)
 		self.player = None
 		
 	def check_events(self):
@@ -69,11 +69,11 @@ class Engine:
 			self.check_events()
 
 	def play(self):	
-		world = World(18, 18, 20, 20)
+		world = World(9, 9, 20, 20)
 		world.generate_world(10)
 		entities = pygame.sprite.Group()
-		self.player = Player("player", world, entities, 9, 16, 10, 10)
-		world.load_maps(9,16)
+		self.player = Player("player", world, entities, 8, 8, 10, 10)
+		world.load_maps(8,8)
 		camera = Camera(complex_camera, 18*20*64, 18*20*64)
 		while self.state_running == True:
 			self.timer.tick(60)
@@ -109,6 +109,7 @@ class Engine:
 				self.state = "ending"
 				self.state_running == False
 				sys.exit()
+			entities = pygame.sprite.Group()
 	def ending(self):
 		sys.exit()
 

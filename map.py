@@ -6,15 +6,16 @@ from pygame.locals import *
 from block import *
 
 class Map(object):
-	def __init__(self, surface, x, y, width, height):
+	def __init__(self, surface, x, y, width, height, blocks):
 		self.surface = surface
 		self.x = x
 		self.y = y
 		self.width = width
 		self.height = height
 		self.blocks = pygame.sprite.Group()
+		self.block_images = blocks;
 		self.generated = False
-		print "Map initialized", self.x, self.y
+		#print "Map initialized", self.x, self.y
 
 	def draw(self, screen):
 		self.blocks.draw(screen)
@@ -71,9 +72,9 @@ class Map(object):
 		#print "Generate block", self.x*self.width*64+x*64, self.y*self.height*64+y*64	
 		ice = random.randint(0, 4)
 		if ice == 1:
-			self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+			self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[0]))
 		elif ice == 2:
-			self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+			self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[1]))
 		elif ice == 3:
 			close_block = "diff"
 			for block in self.blocks.sprites():
@@ -87,18 +88,18 @@ class Map(object):
 				odd_ice = random.randint(0, 10)
 				if odd_ice <= 4:
 					if odd_ice > 0 and odd_ice <= 2:
-						self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+						self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[0]))
 					else:
-						self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+						self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[1]))
 				else:
-					self.blocks.add(Block("oil-pocket-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+					self.blocks.add(Block("oil-pocket-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[2]))
 			else: 
 				odd_ice = random.randint(0, 10)
 				if odd_ice <= 8:
 					if odd_ice > 0 and odd_ice <= 4:
-						self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+						self.blocks.add(Block("ice-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[0]))
 					else:
-						self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+						self.blocks.add(Block("ice-two-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[1]))
 				else:
-					self.blocks.add(Block("oil-pocket-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64))
+					self.blocks.add(Block("oil-pocket-block", self.x*self.width*64+x*64, self.y*self.height*64+y*64, self.block_images[2]))
 								
