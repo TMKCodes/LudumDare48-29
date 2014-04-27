@@ -38,6 +38,7 @@ class Player(Entity):
 		self.pistol_sound = self.load.sound("pistol.wav")
 		self.radio_sound = self.load.sound("radio.wav")
 		self.facing = None
+	
 	def load_image(self, name):
 		self.image, _ = self.load.image(name, -1)
 
@@ -152,14 +153,12 @@ class Player(Entity):
 							self.pistol_sound.play()
 							direction = self.facing
 							self.pistol_bullets -= 1
-							self.entities.add(Bullet(self.world, self.entities, self.mapx, self.mapy, self.rect.x, self.rect.y, direction))
 				elif self.weapon == "assault-rifle":
 					if self.assault_rifle_bullets >= 1:
 						if self.facing == "left" or self.facing == "right":
 							self.assault_rifle_sound.play()	
 							direction = self.facing
 							self.assault_rifle_bullets -= 1
-							self.entities.add(Bullet(self.world, self.entities, self.mapx, self.mapy, self.rect.x, self.rect.y, direction))
 		self.rect.left += self.xvel
 		self.collide(self.xvel, 0)
 		self.rect.top += self.yvel

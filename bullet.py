@@ -20,11 +20,13 @@ class Bullet(Entity):
 		self.load_image("bullet-%s.png" % direction);
 		self.type = "bullet"
 		self.player = False
+		print "bullet initialized."
 	
 	def load_image(self, name):
 		self.image, _ = self.load.image(name, -1)
 	
 	def update(self):
+		print "Bullet update."
 		if self.direction == "left":
 			self.xvel += 15
 		elif self.direction == "right":
@@ -34,17 +36,20 @@ class Bullet(Entity):
 		self.collide(self.xvel, 0)
 	
 	def end_animation(self):
+		self.kill()
 		pass
 
 	def collide(self, xvel, yvel):
+		print "bullet collide check."
 		for entity in self.entities.sprites():
-			if pygame.sprite.collide_rect(self, block):
-				if xvel > 0:
-					self.rect.right = entity.rect.left
-					self.end_animation()
-				if xvel < 0:
-					self.rect.left = entity.rect.right
-					self.end_animation()
-				if entity.type == "alive" and entity.player != True:
-					entity.kill();	
+			if pygame.sprite.collide_rect(self, entity):
+				if entity.type != "bullet":
+					if xvel > 0:
+						self.rect.right = entity.rect.left
+						self.end_animation()
+					if xvel < 0:
+						self.rect.left = entity.rect.right
+						self.end_animation()
+					if entity.type == "alive" and entity.player != True:
+						entity.kill();	
 

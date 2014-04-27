@@ -15,8 +15,11 @@ class Text:
 		else:
 			self.text = self.font.render(text, antialias, color, background)
 	
-	def set_position(self, height, width):
-		self.position = self.text.get_rect(topleft = (height, width))
+	def set_position(self, type, pos):
+		if type == "topleft":
+			self.position = self.text.get_rect(topleft = pos)
+		elif type == "center":
+			self.position = self.text.get_rect(center = pos)
 	
 	def draw(self, screen):
 		 screen.blit(self.text, self.position)

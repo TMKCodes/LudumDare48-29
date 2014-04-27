@@ -1,0 +1,4 @@
+.*
+*.pyc
+gource.mp4
+!/.gitignore
